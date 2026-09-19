@@ -1,46 +1,47 @@
 #!/usr/bin/env python3
 """
-Generate a landscape PDF slide deck for the Deppman/Dickinson seminar presentation.
-Pure standard library (no external deps) — writes a valid PDF with the built-in
-Helvetica font family. Handles word-wrapping and simple bullet/heading styling.
+Generate a plain, minimal landscape PDF slide deck (Times-Roman serif) for the
+Deppman/Dickinson seminar presentation. Style modeled on a reference deck:
+white background, no decoration, centered bold titles, left-aligned bullets.
+Pure standard library (no external deps).
 """
 
 import zlib
 
-# ---------------------------------------------------------------------------
-# Minimal PDF writer
-# ---------------------------------------------------------------------------
-
 PAGE_W, PAGE_H = 792, 612  # US Letter landscape (points)
 
-# Built-in font widths approximation: use Helvetica AFM-ish average.
-# For layout we use per-character widths from a compact table (units/1000).
-HELV_WIDTHS = {
-    ' ': 278, '!': 278, '"': 355, '#': 556, '$': 556, '%': 889, '&': 667,
-    "'": 191, '(': 333, ')': 333, '*': 389, '+': 584, ',': 278, '-': 333,
-    '.': 278, '/': 278, '0': 556, '1': 556, '2': 556, '3': 556, '4': 556,
-    '5': 556, '6': 556, '7': 556, '8': 556, '9': 556, ':': 278, ';': 278,
-    '<': 584, '=': 584, '>': 584, '?': 556, '@': 1015, 'A': 667, 'B': 667,
-    'C': 722, 'D': 722, 'E': 667, 'F': 611, 'G': 778, 'H': 722, 'I': 278,
-    'J': 500, 'K': 667, 'L': 556, 'M': 833, 'N': 722, 'O': 778, 'P': 667,
-    'Q': 778, 'R': 722, 'S': 667, 'T': 611, 'U': 722, 'V': 667, 'W': 944,
-    'X': 667, 'Y': 667, 'Z': 611, '[': 278, '\\': 278, ']': 278, '^': 469,
-    '_': 556, '`': 333, 'a': 556, 'b': 556, 'c': 500, 'd': 556, 'e': 556,
-    'f': 278, 'g': 556, 'h': 556, 'i': 222, 'j': 222, 'k': 500, 'l': 222,
-    'm': 833, 'n': 556, 'o': 556, 'p': 556, 'q': 556, 'r': 333, 's': 500,
-    't': 278, 'u': 556, 'v': 500, 'w': 722, 'x': 500, 'y': 500, 'z': 500,
-    '{': 334, '|': 260, '}': 334, '~': 584,
+# --- Times-Roman AFM widths (units/1000) ---
+TIMES = {
+    ' ':250,'!':333,'"':408,'#':500,'$':500,'%':833,'&':778,"'":180,'(':333,
+    ')':333,'*':500,'+':564,',':250,'-':333,'.':250,'/':278,'0':500,'1':500,
+    '2':500,'3':500,'4':500,'5':500,'6':500,'7':500,'8':500,'9':500,':':278,
+    ';':278,'<':564,'=':564,'>':564,'?':444,'@':921,'A':722,'B':667,'C':667,
+    'D':722,'E':611,'F':556,'G':722,'H':722,'I':333,'J':389,'K':722,'L':611,
+    'M':889,'N':722,'O':722,'P':556,'Q':722,'R':667,'S':556,'T':611,'U':722,
+    'V':722,'W':944,'X':722,'Y':722,'Z':611,'[':333,'\\':278,']':333,'^':469,
+    '_':500,'`':333,'a':444,'b':500,'c':444,'d':500,'e':444,'f':333,'g':500,
+    'h':500,'i':278,'j':278,'k':500,'l':278,'m':778,'n':500,'o':500,'p':500,
+    'q':500,'r':333,'s':389,'t':278,'u':500,'v':500,'w':722,'x':500,'y':500,
+    'z':444,'{':480,'|':200,'}':480,'~':541,
 }
-HELV_BOLD_WIDTHS = dict(HELV_WIDTHS)
-HELV_BOLD_WIDTHS.update({
-    'a': 556, 'c': 556, 'e': 556, 'f': 333, 'r': 389, 's': 556, 't': 333,
-    ' ': 278, 'i': 278, 'j': 278, 'l': 278, 'A': 722, 'B': 722, 'F': 611,
-})
+TIMES_BOLD = {
+    ' ':250,'!':333,'"':555,'#':500,'$':500,'%':1000,'&':833,"'":278,'(':333,
+    ')':333,'*':500,'+':570,',':250,'-':333,'.':250,'/':278,'0':500,'1':500,
+    '2':500,'3':500,'4':500,'5':500,'6':500,'7':500,'8':500,'9':500,':':333,
+    ';':333,'<':570,'=':570,'>':570,'?':500,'@':930,'A':722,'B':667,'C':722,
+    'D':722,'E':667,'F':611,'G':778,'H':778,'I':389,'J':500,'K':778,'L':667,
+    'M':944,'N':722,'O':778,'P':611,'Q':778,'R':722,'S':556,'T':667,'U':722,
+    'V':722,'W':1000,'X':722,'Y':722,'Z':667,'[':333,'\\':278,']':333,'^':581,
+    '_':500,'`':333,'a':500,'b':556,'c':444,'d':556,'e':444,'f':333,'g':500,
+    'h':556,'i':278,'j':333,'k':556,'l':278,'m':833,'n':556,'o':500,'p':556,
+    'q':556,'r':444,'s':389,'t':333,'u':556,'v':500,'w':722,'x':500,'y':500,
+    'z':444,'{':394,'|':220,'}':394,'~':520,
+}
 
 
 def char_width(ch, size, bold=False):
-    table = HELV_BOLD_WIDTHS if bold else HELV_WIDTHS
-    return table.get(ch, 556) / 1000.0 * size
+    table = TIMES_BOLD if bold else TIMES
+    return table.get(ch, 500) / 1000.0 * size
 
 
 def text_width(s, size, bold=False):
@@ -48,7 +49,6 @@ def text_width(s, size, bold=False):
 
 
 def wrap(text, size, max_w, bold=False):
-    """Greedy word-wrap. Returns list of lines."""
     words = text.split(' ')
     lines, cur = [], ''
     for w in words:
@@ -68,11 +68,10 @@ def esc(s):
 
 
 def sanitize(s):
-    """Map common unicode punctuation to Latin-1 safe equivalents."""
     repl = {
         '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"',
         '\u2013': '-', '\u2014': '--', '\u2026': '...', '\u2022': '-',
-        '\u2192': '->', '\u2b50': '*', '\u26a0': '!', '\u00e0': 'a',
+        '\u2192': '->', '\u2b50': '', '\u26a0': '', '\u00e0': 'a',
         '\u00e9': 'e', '\u00ef': 'i', '\u2011': '-',
     }
     return ''.join(repl.get(c, c if ord(c) < 256 else '?') for c in s)
@@ -80,12 +79,12 @@ def sanitize(s):
 
 class PDF:
     def __init__(self):
-        self.objs = []  # list of raw byte strings (object bodies)
+        self.objs = []
         self.pages = []
 
     def add_obj(self, body):
         self.objs.append(body)
-        return len(self.objs)  # 1-based object number
+        return len(self.objs)
 
     def add_page(self, content_stream):
         data = content_stream.encode('latin-1', 'replace')
@@ -98,18 +97,12 @@ class PDF:
         self.pages.append(content_num)
 
     def build(self, path):
-        # Font objects
-        f_reg = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>')
-        f_bold = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>')
-        f_obl = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Oblique /Encoding /WinAnsiEncoding >>')
+        f_reg = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>')
+        f_bold = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Times-Bold /Encoding /WinAnsiEncoding >>')
+        f_ital = self.add_obj(b'<< /Type /Font /Subtype /Type1 /BaseFont /Times-Italic /Encoding /WinAnsiEncoding >>')
 
-        # Page objects reference a shared Pages node (added later) — we need its num.
-        pages_node_num = len(self.objs) + len(self.pages) + 1  # placeholder calc
-        # Simpler: create page objects now, patch parent afterwards.
+        resources = b'<< /Font << /F1 %d 0 R /F2 %d 0 R /F3 %d 0 R >> >>' % (f_reg, f_bold, f_ital)
         page_obj_nums = []
-        resources = (
-            b'<< /Font << /F1 %d 0 R /F2 %d 0 R /F3 %d 0 R >> >>' % (f_reg, f_bold, f_obl)
-        )
         for content_num in self.pages:
             body = (
                 b'<< /Type /Page /Parent __PARENT__ 0 R '
@@ -119,16 +112,11 @@ class PDF:
             page_obj_nums.append(self.add_obj(body))
 
         kids = b' '.join(b'%d 0 R' % n for n in page_obj_nums)
-        pages_num = self.add_obj(
-            b'<< /Type /Pages /Kids [%s] /Count %d >>' % (kids, len(page_obj_nums))
-        )
-        # Patch parent refs
+        pages_num = self.add_obj(b'<< /Type /Pages /Kids [%s] /Count %d >>' % (kids, len(page_obj_nums)))
         for n in page_obj_nums:
             self.objs[n - 1] = self.objs[n - 1].replace(b'__PARENT__', b'%d' % pages_num)
-
         catalog_num = self.add_obj(b'<< /Type /Catalog /Pages %d 0 R >>' % pages_num)
 
-        # Serialize
         out = [b'%PDF-1.4\n%\xe2\xe3\xcf\xd3\n']
         offsets = []
         pos = len(out[0])
@@ -143,200 +131,167 @@ class PDF:
         for off in offsets:
             xref.append(b'%010d 00000 n \n' % off)
         out.extend(xref)
-        out.append(
-            b'trailer\n<< /Size %d /Root %d 0 R >>\nstartxref\n%d\n%%%%EOF\n'
-            % (n + 1, catalog_num, xref_pos)
-        )
+        out.append(b'trailer\n<< /Size %d /Root %d 0 R >>\nstartxref\n%d\n%%%%EOF\n'
+                   % (n + 1, catalog_num, xref_pos))
         with open(path, 'wb') as fh:
             fh.write(b''.join(out))
 
 
-# ---------------------------------------------------------------------------
-# Slide rendering
-# ---------------------------------------------------------------------------
-
-MARGIN = 54
-ACCENT = (0.13, 0.30, 0.52)     # deep blue
-DARK = (0.12, 0.12, 0.14)
-GRAY = (0.40, 0.40, 0.44)
-QUOTE_BG = (0.93, 0.95, 0.98)
+MARGIN = 60
+BLACK = (0, 0, 0)
 
 
 def col(c):
     return '%.3f %.3f %.3f' % c
 
 
-def render_slide(slide, idx, total):
-    """slide = dict(title, subtitle?, blocks[]). Returns content stream string."""
-    s = []
-    # Background
-    s.append('q 1 1 1 rg 0 0 %d %d re f Q' % (PAGE_W, PAGE_H))
-    # Top accent bar
-    s.append('q %s rg 0 %d %d 8 re f Q' % (col(ACCENT), PAGE_H - 8, PAGE_W))
-    # Footer
-    footer = sanitize('Deppman, "Trying to Think with Emily Dickinson" (2005)')
-    s.append('q BT /F1 9 Tf %s rg %d 24 Td (%s) Tj ET Q' % (col(GRAY), MARGIN, esc(footer)))
-    pagenum = '%d / %d' % (idx, total)
-    pw = text_width(pagenum, 9)
-    s.append('q BT /F1 9 Tf %s rg %.1f 24 Td (%s) Tj ET Q' % (col(GRAY), PAGE_W - MARGIN - pw, esc(pagenum)))
+def draw_line(s, txt, x, y, size, bold=False, italic=False):
+    font = '/F2' if bold else ('/F3' if italic else '/F1')
+    s.append('BT %s %d Tf %d %.1f Td (%s) Tj ET' % (font, size, x, y, esc(txt)))
 
-    y = PAGE_H - 62
+
+def render_content_slide(slide):
+    s = []
+    # white background
+    s.append('1 1 1 rg 0 0 %d %d re f' % (PAGE_W, PAGE_H))
+    s.append('0 0 0 rg')  # default text black
+
     max_w = PAGE_W - 2 * MARGIN
 
-    # Title
+    # Centered bold title near top
     title = sanitize(slide['title'])
-    for ln in wrap(title, 26, max_w, bold=True):
-        s.append('q BT /F2 26 Tf %s rg %d %.1f Td (%s) Tj ET Q' % (col(ACCENT), MARGIN, y, esc(ln)))
-        y -= 32
-    y -= 6
-    # underline
-    s.append('q %s RG 1.2 w %d %.1f m %d %.1f l S Q' % (col(ACCENT), MARGIN, y, PAGE_W - MARGIN, y))
-    y -= 24
+    ty = PAGE_H - 80
+    for ln in wrap(title, 30, max_w, bold=True):
+        w = text_width(ln, 30, bold=True)
+        draw_line(s, ln, (PAGE_W - w) / 2, ty, 30, bold=True)
+        ty -= 38
+
+    y = ty - 30
+    body_size = slide.get('body_size', 17)
 
     for block in slide['blocks']:
-        btype = block[0]
-        if btype == 'text':
+        kind = block[0]
+        if kind == 'bullet':
             _, txt, opts = block
-            size = opts.get('size', 14)
-            bold = opts.get('bold', False)
-            italic = opts.get('italic', False)
-            color = opts.get('color', DARK)
-            font = '/F2' if bold else ('/F3' if italic else '/F1')
-            for ln in wrap(sanitize(txt), size, max_w, bold=bold):
-                s.append('q BT %s %d Tf %s rg %d %.1f Td (%s) Tj ET Q'
-                         % (font, size, col(color), MARGIN, y, esc(ln)))
-                y -= size + 6
-            y -= opts.get('gap', 4)
-        elif btype == 'bullet':
-            _, txt, opts = block
-            size = opts.get('size', 14)
+            size = opts.get('size', body_size)
             indent = opts.get('indent', 0)
-            color = opts.get('color', DARK)
-            bx = MARGIN + 6 + indent
-            marker = '-' if indent > 0 else 'n'  # 'n' -> we draw a box via char
-            lines = wrap(sanitize(txt), size, max_w - 22 - indent, bold=False)
-            # bullet marker
-            if indent == 0:
-                s.append('q %s rg %d %.1f 5 5 re f Q' % (col(ACCENT), MARGIN + indent, y + 2))
-            else:
-                s.append('q BT /F1 %d Tf %s rg %d %.1f Td (-) Tj ET Q'
-                         % (size, col(GRAY), MARGIN + indent, y))
+            lines = wrap(sanitize(txt), size, max_w - 20 - indent)
+            # bullet marker "-" style like reference deck uses "•"; use bullet char
+            draw_line(s, '\x95', MARGIN + indent, y, size)  # 0x95 = bullet in WinAnsi
             for j, ln in enumerate(lines):
-                s.append('q BT /F1 %d Tf %s rg %d %.1f Td (%s) Tj ET Q'
-                         % (size, col(color), bx + 12, y, esc(ln)))
-                y -= size + 5
-            y -= 3
-        elif btype == 'quote':
+                draw_line(s, ln, MARGIN + indent + 16, y, size)
+                y -= size + 7
+            y -= 8
+        elif kind == 'plain':
             _, txt, opts = block
-            size = opts.get('size', 13)
-            lines = wrap(sanitize(txt), size, max_w - 40)
-            box_h = len(lines) * (size + 6) + 14
-            # background
-            s.append('q %s rg %d %.1f %d %.1f re f Q'
-                     % (col(QUOTE_BG), MARGIN, y - box_h + size + 2, max_w, box_h))
-            # left rule
-            s.append('q %s rg %d %.1f 4 %.1f re f Q'
-                     % (col(ACCENT), MARGIN, y - box_h + size + 2, box_h))
-            ty = y - 6
-            for ln in lines:
-                s.append('q BT /F3 %d Tf %s rg %d %.1f Td (%s) Tj ET Q'
-                         % (size, col(DARK), MARGIN + 16, ty, esc(ln)))
-                ty -= size + 6
-            y -= box_h + 10
-        elif btype == 'space':
+            size = opts.get('size', body_size)
+            italic = opts.get('italic', False)
+            indent = opts.get('indent', 0)
+            for ln in wrap(sanitize(txt), size, max_w - indent, bold=False):
+                draw_line(s, ln, MARGIN + indent, y, size, italic=italic)
+                y -= size + 7
+            y -= 8
+        elif kind == 'space':
             y -= block[1]
-    return ''.join(s)
+    return '\n'.join(s)
 
 
-def render_title_slide(slide, idx, total):
+def render_title_slide(slide):
     s = []
-    s.append('q %s rg 0 0 %d %d re f Q' % (col(ACCENT), PAGE_W, PAGE_H))
-    # big title
-    y = PAGE_H - 250
-    for ln in wrap(sanitize(slide['title']), 40, PAGE_W - 140, bold=True):
-        w = text_width(ln, 40, bold=True)
-        s.append('q BT /F2 40 Tf 1 1 1 rg %.1f %.1f Td (%s) Tj ET Q'
-                 % ((PAGE_W - w) / 2, y, esc(ln)))
+    s.append('1 1 1 rg 0 0 %d %d re f' % (PAGE_W, PAGE_H))
+    s.append('0 0 0 rg')
+    # Big centered title, vertically middle-ish
+    lines = []
+    for part in slide['title_lines']:
+        lines.extend(wrap(sanitize(part), 40, PAGE_W - 120, bold=False))
+    total_h = len(lines) * 50
+    y = PAGE_H / 2 + total_h / 2 + 40
+    for ln in lines:
+        w = text_width(ln, 40)
+        draw_line(s, ln, (PAGE_W - w) / 2, y, 40)
         y -= 50
-    y -= 20
-    for line in slide['blocks']:
-        txt = sanitize(line)
+    # subtitle
+    y -= 30
+    for sub in slide.get('subtitle', []):
+        txt = sanitize(sub)
+        w = text_width(txt, 18)
+        draw_line(s, txt, (PAGE_W - w) / 2, y, 18)
+        y -= 26
+    # bottom-right name/id
+    if slide.get('footer'):
+        txt = sanitize(slide['footer'])
         w = text_width(txt, 16)
-        s.append('q BT /F1 16 Tf 0.85 0.90 0.97 rg %.1f %.1f Td (%s) Tj ET Q'
-                 % ((PAGE_W - w) / 2, y, esc(txt)))
-        y -= 28
-    return ''.join(s)
+        draw_line(s, txt, PAGE_W - MARGIN - w, 50, 16)
+    return '\n'.join(s)
 
 
-# ---------------------------------------------------------------------------
-# Slide content
-# ---------------------------------------------------------------------------
-
-def B(txt, **o):      return ('bullet', txt, o)
-def T(txt, **o):      return ('text', txt, o)
-def Q(txt, **o):      return ('quote', txt, o)
-def SP(h):            return ('space', h)
+# --- content helpers ---
+def B(txt, **o):     return ('bullet', txt, o)
+def P(txt, **o):     return ('plain', txt, o)
+def SP(h):           return ('space', h)
 
 
 slides = []
 
 # 1 — Title
 slides.append({'kind': 'title',
-    'title': 'Trying to Think with Emily Dickinson',
-    'blocks': [
-        'Jed Deppman (2005)  -  The Emily Dickinson Journal 14.1: 84-103',
-        '',
-        'Presented by [Your Name]',
-        '[Course / Date]',
-    ]})
+    'title_lines': ['Trying to Think', 'with Emily Dickinson'],
+    'subtitle': ['A reading of Jed Deppman (2005),',
+                 'The Emily Dickinson Journal 14.1: 84-103'],
+    'footer': '[Your Name]  [Student ID]'})
 
 # 2
 slides.append({'title': 'Two Epigraphs: The Central Tension', 'blocks': [
-    Q('"Why not an \'eleventh hour\' in the life of the mind as well as such an one in the life of the soul..."  -- Dickinson to Austin, 1851 (L44)'),
-    Q('"the more consciousness, the more intense the despair."  -- Kierkegaard, Sickness unto Death'),
+    P('"Why not an \'eleventh hour\' in the life of the mind as well as such an one in the life of the soul..."', italic=True),
+    P('-- Dickinson to Austin, 1851 (L44)', indent=20),
+    SP(6),
+    P('"the more consciousness, the more intense the despair."', italic=True),
+    P('-- Kierkegaard, Sickness unto Death', indent=20),
+    SP(10),
     B('Dickinson: thinking is an existential drama, equal to the soul\'s.'),
-    B('Kierkegaard: deeper consciousness = deeper despair.'),
-    B('The paper lives in the gap between these two claims.', bold=True),
+    B('Kierkegaard: deeper consciousness means deeper despair.'),
+    B('The paper lives in the gap between these two claims.'),
 ]})
 
 # 3
 slides.append({'title': 'The Critical Debate', 'blocks': [
-    T('The received view (what Deppman opposes):', bold=True, size=15),
-    B('Dickinson privileges emotional / physical response over clarity of thought.'),
+    P('The received view (what Deppman opposes):'),
+    B('Dickinson privileges emotional and physical response over clarity of thought.'),
     B('Peterson: her impassioned poems become "a series of ecstatic assertions, an abandonment to excess verging on mental unbalance" (500).'),
     SP(6),
-    T('Deppman\'s entry point:', bold=True, size=15),
+    P('Deppman\'s entry point:'),
     B('Her "famous opacity" has led readers to treat affect as primary.'),
     B('He will "argue the opposite case."'),
 ]})
 
 # 4
 slides.append({'title': 'The Thesis', 'blocks': [
-    Q('"...I will argue the opposite case and portray her not as a mystic but as a serious thinker." (p. 85)'),
-    B('Not "ecstatic assertions" -> but "careful sequences of ideas and images."'),
-    B('Not "abandonment to excess" -> but "thoughtful production of, and reaction to, extreme states of being."'),
-    SP(4),
-    T('Goal: how Dickinson conceived the activity of thinking, and "how writing poetry helped her think." (p. 85)', bold=True, size=14),
+    P('"...I will argue the opposite case and portray her not as a mystic but as a serious thinker." (p. 85)', italic=True),
+    SP(10),
+    B('Not "ecstatic assertions" but "careful sequences of ideas and images."'),
+    B('Not "abandonment to excess" but "thoughtful production of, and reaction to, extreme states of being."'),
+    SP(6),
+    B('Goal: how Dickinson conceived the activity of thinking, and "how writing poetry helped her think."'),
 ]})
 
 # 5
 slides.append({'title': 'Evidence 1: Word Statistics', 'blocks': [
-    T('Rosenbaum Concordance (1955 Johnson edition):', size=14),
-    B('Feeling-words:  feel 39  /  felt 35  /  feels 16  /  feeling 8  /  body 10  /  bodies 1'),
-    B('Thinking-words:  thought 69  /  think 43  /  know 230  /  knew 80  /  mind 79  /  brain 26'),
+    P('Rosenbaum Concordance (1955 Johnson edition):'),
+    B('Feeling-words: feel 39, felt 35, feels 16, feeling 8; body 10, bodies 1.'),
+    B('Thinking-words: thought 69, think 43, know 230, knew 80; mind 79, brain 26.'),
     SP(6),
-    B('"know" = 4th most common verb overall (after be, be able, have).'),
+    B('"know" is the 4th most common verb overall (after be, be able, have).'),
     B('Deppman: "much more about thought than feeling" (p. 86).'),
-    B('BUT his own caveat: statistics are "partial and decontextualized" (p. 86).', bold=True),
+    B('But his own caveat: the statistics are "partial and decontextualized" (p. 86).'),
 ]})
 
 # 6
 slides.append({'title': 'Evidence 2: The Many Faces of Thought', 'blocks': [
-    T('Thought is a "consistent as well as kaleidoscopic" topic (p. 85):', size=14),
+    P('Thought is a "consistent as well as kaleidoscopic" topic (p. 85):'),
     B('Celebratory: "Best Things dwell out of Sight / ... Our Thought" (Fr1012)'),
     B('Cautionary: "If wrecked upon the Shoal of Thought..." (Fr1503)'),
     B('Analytic: "The Brain - is wider than the Sky -" (Fr598)'),
-    B('Wild / dangerous: "The Brain, within it\'s Groove / Runs evenly ... But let a Splinter swerve -" (Fr563)'),
+    B('Wild: "The Brain, within it\'s Groove / Runs evenly ... But let a Splinter swerve -" (Fr563)'),
     B('Sufficient for happiness: "The revery alone will do, / If bees are few" (Fr1779)'),
 ]})
 
@@ -344,39 +299,41 @@ slides.append({'title': 'Evidence 2: The Many Faces of Thought', 'blocks': [
 slides.append({'title': 'Framework 1: Postmodern Dickinson', 'blocks': [
     B('Wolff: "artist of the age of transition" - freeing language "from the tyranny of His definitions" (429).'),
     B('Porter: the mind "explosive with signifying power but disinherited from transcendent knowledge" (7).'),
-    B('Lyotard: postmodernism = "incredulity toward metanarratives."'),
-    B('Derrida: Dickinson as "bricoleuse," mixing religious / literary / scientific vocabularies.'),
-    SP(4),
-    T('Root condition: tension between Lockean empiricism (schoolbooks) and Kantian / Transcendentalist apprehension of the supersensible (p. 86).', bold=True, size=13),
+    B('Lyotard: postmodernism is "incredulity toward metanarratives."'),
+    B('Derrida: Dickinson as "bricoleuse," mixing religious, literary, and scientific vocabularies.'),
+    SP(6),
+    B('Root condition: the tension between Lockean empiricism (her schoolbooks) and Kantian / Transcendentalist apprehension of the supersensible (p. 86).'),
 ]})
 
 # 8
 slides.append({'title': 'Framework 2: The Kantian Sublime', 'blocks': [
-    T('The engine of the whole paper:', bold=True, size=15),
+    P('The engine of the whole paper:'),
     B('1. Reason conceives something conceivable but unpresentable (infinity, death).'),
     B('2. Reason demands an adequate image.'),
-    B('3. Imagination tries -- and fails.'),
+    B('3. Imagination tries and fails.'),
     B('4. The mind repeats the try; from this the sublime emerges.'),
-    Q('Lyotard: "it is our business not to supply reality but to invent allusions to the conceivable which cannot be presented" (Postmodern 81).'),
-    T('! Key concession: Dickinson "did not read Kant" (p. 87) - a shared attitude, not influence.', bold=True, size=13, color=(0.6,0.1,0.1)),
+    SP(4),
+    B('Lyotard: "invent allusions to the conceivable which cannot be presented" (Postmodern 81).'),
+    B('Key concession: Dickinson "did not read Kant" (p. 87) - a shared attitude, not influence.'),
 ]})
 
 # 9
 slides.append({'title': 'The Origin of "Trying" (L10, 1846)', 'blocks': [
-    T('At age 15, Dickinson tries to think her own death:', size=14),
-    Q('"I cannot imagine with the farthest stretch of my imagination my own death scene... I cannot realize that the grave will be my last home..."'),
+    P('At age fifteen, Dickinson tries to think her own death:'),
+    P('"I cannot imagine with the farthest stretch of my imagination my own death scene... I cannot realize that the grave will be my last home..."', italic=True),
+    SP(8),
     B('The refrain: "I cannot imagine ... I cannot realize ... nor can I realize ..."'),
     B('The mind "stretches, fails, realizes it fails, regroups, rewords, and reaches its limit again" (p. 88).'),
-    B('Core formula: "she cannot think death or Eternity ... but she cannot not think them either."', bold=True),
+    B('Core formula: "she cannot think death or Eternity ... but she cannot not think them either."'),
 ]})
 
 # 10
 slides.append({'title': 'Evidence 3: The Higginson Letters', 'blocks': [
-    T('Writing understood AS thought:', bold=True, size=14),
+    P('Writing understood as thought:'),
     B('1862 (L260): "Are you too deeply occupied to say if my Verse is alive?"'),
     B('The bind (L260): "The Mind is so near itself - it cannot see, distinctly - and I have none to ask -."'),
     B('Writing as therapy (L261): "I had a terror ... and so I sing, as the Boy does by the Burying Ground - because I am afraid."'),
-    B('Thought over language (L261): "While my thought is undressed - I can make the distinction, but when I put them in the Gown - they look alike, and numb."'),
+    B('Thought over language (L261): "While my thought is undressed ... but when I put them in the Gown - they look alike, and numb."'),
     B('To the end (L1042): "bereft of Book and Thought, by the doctor\'s reproof."'),
 ]})
 
@@ -385,63 +342,65 @@ slides.append({'title': 'Defining the "Try-to-Think" Poem', 'blocks': [
     B('Purpose: to force the mind to satisfy reason\'s unsatisfiable demand for a complete image.'),
     B('"the try is usually serious, the goal explicitly stated, ... emphasis squarely on the willful movements of thought."'),
     B('They are "precisely sequenced, if difficult, thought experiments" - readers repeat the steps.'),
-    SP(6),
-    T('Examples: "Of Death I try to think like this" (Fr1588); "The nearest Dream recedes" (Fr304B); "I think To Live - may be a Bliss" (Fr757).', bold=True, size=13),
+    SP(8),
+    P('Examples: "Of Death I try to think like this" (Fr1588); "The nearest Dream recedes" (Fr304B); "I think To Live - may be a Bliss" (Fr757).'),
 ]})
 
 # 12
-slides.append({'title': 'Close Reading 1: Fr570 & the Dilemma', 'blocks': [
-    Q('I tried to think a lonelier Thing / Than any I had seen - / Some Polar Expiation - An Omen in the Bone / Of Death\'s tremendous nearness - ... I plucked at our Partition - ... I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -', size=12),
-    T('The interpretive dilemma (p. 94):', bold=True, size=14),
-    B('Proactive? - a "virtuoso attempt to conceptualize an extreme human possibility"'),
-    B('Reactive? - an attempt "to knead it, battle it, alter it, realize it, or just survive it through thought"'),
-    B('Deppman chooses: REACTIVE.', bold=True),
+slides.append({'title': 'Close Reading 1: Fr570 and the Dilemma', 'body_size': 15, 'blocks': [
+    P('"I tried to think a lonelier Thing / Than any I had seen - / Some Polar Expiation - An Omen in the Bone / Of Death\'s tremendous nearness - ... I plucked at our Partition - ... I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"', italic=True),
+    SP(6),
+    P('The interpretive dilemma (p. 94):'),
+    B('Proactive? - a "virtuoso attempt to conceptualize an extreme human possibility."'),
+    B('Reactive? - an attempt "to knead it, battle it, alter it, realize it, or just survive it through thought."'),
+    B('Deppman chooses: reactive.'),
 ]})
 
 # 13
 slides.append({'title': 'Close Reading 2: Tracking the Steps', 'blocks': [
-    B('1. Naming the "Thing" -> two quiddities:'),
-    B('"Some Polar Expiation" - expiation + polar expedition: radical exile from self, culture, nature.', indent=18),
-    B('"An Omen in the Bone / Of Death\'s tremendous nearness" - anticipatory; near in time AND space.', indent=18),
-    B('2. Borrowing a "Duplicate" - a fellow spirit "Of Heavenly Love - forgot -": the "smallest possible unit of imagined community."'),
-    B('3. "Within the Clutch of Thought" - undecidability: reachable BY thought, or made ONLY of thought (= fabricated)?'),
-    B('4. "our Partition" - the possessive forms "a we": bridge AND barrier between living self and dead twin.'),
+    B('1. Naming the "Thing" as two quiddities:'),
+    B('"Some Polar Expiation" - expiation plus polar expedition: radical exile from self, culture, nature.', indent=20),
+    B('"An Omen in the Bone / Of Death\'s tremendous nearness" - anticipatory; near in time and space.', indent=20),
+    B('2. Borrowing a "Duplicate" - a spirit "Of Heavenly Love - forgot -": the "smallest possible unit of imagined community."'),
+    B('3. "Within the Clutch of Thought" - undecidable: reachable by thought, or made only of thought (fabricated)?'),
+    B('4. "our Partition" - the possessive forms "a we": bridge and barrier between living self and dead twin.'),
 ]})
 
 # 14
 slides.append({'title': 'Close Reading 3: The Paradoxical Close', 'blocks': [
-    Q('I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -'),
+    P('"I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"', italic=True),
+    SP(8),
     B('Two God-forsaken souls in "Opposing Cells" - "a chilling scene reminiscent of Beckett\'s Godot."'),
     B('Deppman hears an elided phrase: "Such Luxury - it grew [- to think]."'),
-    B('-> Consolation comes from the experimental force of thought itself.'),
-    B('BUT: "a fragile state and a momentary victory" - how long can it console?', bold=True),
+    B('So consolation comes from the experimental force of thought itself.'),
+    B('But: "a fragile state and a momentary victory" - how long can it console?'),
 ]})
 
 # 15
 slides.append({'title': 'Critical Assessment: Strengths', 'blocks': [
     B('Methodological rigor - grounds a large claim in concordance data (p. 86), not impression. A falsifiable move.'),
-    B('Genuine integration - letters (L10, L260, L261) function as evidence of a poetics, not decorative biography.'),
+    B('Genuine integration - the letters (L10, L260, L261) function as evidence of a poetics, not decorative biography.'),
     B('A generative concept - the "try-to-think poem" names a real, repeatable pattern, applicable beyond his sample.'),
     B('Reframes opacity as method - difficulty is the trace of a mind at work, not failure or excess.'),
 ]})
 
 # 16
 slides.append({'title': 'Critical Assessment: My Position', 'blocks': [
-    T('Claim: the thesis is self-undermining - and that is its most interesting result.', bold=True, size=15, color=(0.6,0.1,0.1)),
+    P('Claim: the thesis is self-undermining - and that is its most interesting result.'),
+    SP(6),
     B('Deppman picks thought over feeling. Yet his own reading of Fr570 runs on affect: "desperate," "chilling," "sickening loneliness," writing as "thought\'s psychotherapeutic response to troubling emotion" (p. 90).'),
-    B('If the "try" matters only BECAUSE the loneliness is unbearable, then thought and feeling are inseparable - the binary collapses.'),
-    B('So the real achievement is the opposite of the stated one: thinking IS an emotional act.', bold=True),
-    SP(4),
-    T('Discussion bait: "Kant without Kant" (p.87) - imported lens?  /  Circularity of the genre.  /  Muldoon\'s Civil War reading (note 18).', size=12, color=GRAY),
+    B('If the "try" matters only because the loneliness is unbearable, then thought and feeling are inseparable - the binary collapses.'),
+    B('So the real achievement is the opposite of the stated one: thinking is an emotional act.'),
+    B('Further bait: "Kant without Kant" (p. 87); the circularity of the genre; Muldoon\'s Civil War reading (note 18).'),
 ]})
 
 # 17
-slides.append({'title': 'Conclusion & Discussion Questions', 'blocks': [
+slides.append({'title': 'Conclusion and Discussion Questions', 'blocks': [
     B('Deppman: these are poems in which she "tried to help or save herself by representing her own efforts to help or save herself" (p. 100).'),
     B('To join the poem is to risk "experiencing a loneliness we cannot sound."'),
-    B('Return to Kierkegaard: thought is both consolation AND risk.', bold=True),
+    B('Return to Kierkegaard: thought is both consolation and risk.'),
     SP(8),
-    T('Discussion questions:', bold=True, size=15),
+    P('Discussion questions:'),
     B('1. Does the thought/feeling binary survive Deppman\'s own close reading?'),
     B('2. Is the Kantian sublime valid for a poet who never read Kant?'),
     B('3. Is "try-to-think" a discovered genre or a critic\'s construct?'),
@@ -449,18 +408,11 @@ slides.append({'title': 'Conclusion & Discussion Questions', 'blocks': [
 ]})
 
 
-# ---------------------------------------------------------------------------
-# Build
-# ---------------------------------------------------------------------------
-
 pdf = PDF()
-total = len(slides)
-for i, sl in enumerate(slides, start=1):
+for sl in slides:
     if sl.get('kind') == 'title':
-        content = render_title_slide(sl, i, total)
+        pdf.add_page(render_title_slide(sl))
     else:
-        content = render_slide(sl, i, total)
-    pdf.add_page(content)
-
+        pdf.add_page(render_content_slide(sl))
 pdf.build('/projects/sandbox/dickinson_presentation.pdf')
-print('Wrote dickinson_presentation.pdf with %d slides' % total)
+print('Wrote dickinson_presentation.pdf with %d slides (Times serif, minimal style)' % len(slides))
