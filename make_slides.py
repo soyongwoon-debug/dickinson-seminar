@@ -240,7 +240,19 @@ slides.append({'kind': 'title',
                  'The Emily Dickinson Journal 14.1: 84-103'],
     'footer': '[Your Name]  [Student ID]'})
 
-# 2
+# 2 — Contents
+slides.append({'title': 'Contents', 'blocks': [
+    B('The critical debate: mystic or thinker?'),
+    B('The thesis and its statistical evidence'),
+    B('Theoretical framework: postmodernism and the Kantian sublime'),
+    B('The origin of "trying" and the Higginson letters'),
+    B('Defining the "try-to-think" poem'),
+    B('Close reading: "I tried to think a lonelier Thing" (Fr570)'),
+    B('Critical assessment and my position'),
+    B('Conclusion and discussion'),
+]})
+
+# 3
 slides.append({'title': 'Two Epigraphs: The Central Tension', 'blocks': [
     P('"Why not an \'eleventh hour\' in the life of the mind as well as such an one in the life of the soul..."', italic=True),
     P('-- Dickinson to Austin, 1851 (L44)', indent=20),
