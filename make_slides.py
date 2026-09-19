@@ -39,7 +39,16 @@ TIMES_BOLD = {
 }
 
 
+_CURLY_W = {  # widths for curly punctuation (units/1000), Times regular & bold
+    '\u2018': (333, 333), '\u2019': (333, 333),
+    '\u201c': (444, 500), '\u201d': (444, 500),
+    '\u2013': (500, 500), '\u2014': (1000, 1000), '\u2026': (1000, 1000),
+}
+
+
 def char_width(ch, size, bold=False):
+    if ch in _CURLY_W:
+        return _CURLY_W[ch][1 if bold else 0] / 1000.0 * size
     table = TIMES_BOLD if bold else TIMES
     return table.get(ch, 500) / 1000.0 * size
 
@@ -64,17 +73,57 @@ def wrap(text, size, max_w, bold=False):
 
 
 def esc(s):
-    return s.replace('\\', r'\\').replace('(', r'\(').replace(')', r'\)')
+    # 1) escape PDF-special chars first (must be before adding our own backslashes)
+    s = s.replace('\\', r'\\').replace('(', r'\(').replace(')', r'\)')
+    # 2) map unicode curly punctuation to WinAnsi octal escapes
+    for u, code in WINANSI.items():
+        s = s.replace(u, code)
+    # 3) drop / downgrade any remaining non-latin
+    drop = {'\u2022': '-', '\u2192': '->', '\u2b50': '', '\u26a0': '',
+            '\u00e0': 'a', '\u00e9': 'e', '\u00ef': 'i', '\u2011': '-'}
+    for u, r in drop.items():
+        s = s.replace(u, r)
+    return s
+
+
+# WinAnsi (CP1252) byte codes for curly punctuation, emitted as \ooo octal escapes.
+WINANSI = {
+    '\u2018': '\\221',  # left single quote  '
+    '\u2019': '\\222',  # right single quote '
+    '\u201c': '\\223',  # left double quote  "
+    '\u201d': '\\224',  # right double quote "
+    '\u2013': '\\226',  # en dash
+    '\u2014': '\\227',  # em dash
+    '\u2026': '\\205',  # ellipsis
+}
+
+
+def curlify(s):
+    """Convert straight quotes to typographic (curly) quotes by context."""
+    out = []
+    n = len(s)
+    for i, c in enumerate(s):
+        if c == '"':
+            prev = s[i - 1] if i > 0 else ' '
+            out.append('\u201d' if (prev not in ' ([{\t' and prev != '') else '\u201c')
+        elif c == "'":
+            prev = s[i - 1] if i > 0 else ' '
+            # apostrophe if between letters (don't, it's), else opening/closing
+            if prev.isalpha() or prev.isdigit():
+                out.append('\u2019')
+            elif prev in ' ([{':
+                out.append('\u2018')
+            else:
+                out.append('\u2019')
+        else:
+            out.append(c)
+    return ''.join(out)
 
 
 def sanitize(s):
-    repl = {
-        '\u2018': "'", '\u2019': "'", '\u201c': '"', '\u201d': '"',
-        '\u2013': '-', '\u2014': '--', '\u2026': '...', '\u2022': '-',
-        '\u2192': '->', '\u2b50': '', '\u26a0': '', '\u00e0': 'a',
-        '\u00e9': 'e', '\u00ef': 'i', '\u2011': '-',
-    }
-    return ''.join(repl.get(c, c if ord(c) < 256 else '?') for c in s)
+    # Keep unicode (curly quotes, dashes) so wrapping/width use real glyph widths.
+    # The WinAnsi byte mapping happens later, inside esc().
+    return curlify(s)
 
 
 class PDF:
@@ -238,7 +287,7 @@ slides.append({'kind': 'title',
     'title_lines': ['Trying to Think', 'with Emily Dickinson'],
     'subtitle': ['A reading of Jed Deppman (2005),',
                  'The Emily Dickinson Journal 14.1: 84-103'],
-    'footer': '[Your Name]  [Student ID]'})
+    'footer': 'So Yong-woon 202655100'})
 
 # 2 — Contents
 slides.append({'title': 'Contents', 'blocks': [
