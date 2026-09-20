@@ -303,10 +303,10 @@ slides.append({'title': 'Contents', 'blocks': [
 
 # 3
 slides.append({'title': 'Two Epigraphs: The Central Tension', 'blocks': [
-    P('"Why not an \'eleventh hour\' in the life of the mind as well as such an one in the life of the soul..."', italic=True),
+    P('"Why not an \'eleventh hour\' in the life of the mind as well as such an one in the life of the soul..."'),
     P('-- Dickinson to Austin, 1851 (L44)', indent=20),
     SP(6),
-    P('"the more consciousness, the more intense the despair."', italic=True),
+    P('"the more consciousness, the more intense the despair."'),
     P('-- Kierkegaard, Sickness unto Death', indent=20),
     SP(10),
     B('Dickinson: thinking is an existential drama, equal to the soul\'s.'),
@@ -327,7 +327,7 @@ slides.append({'title': 'The Critical Debate', 'blocks': [
 
 # 4
 slides.append({'title': 'The Thesis', 'blocks': [
-    P('"...I will argue the opposite case and portray her not as a mystic but as a serious thinker." (p. 85)', italic=True),
+    P('"...I will argue the opposite case and portray her not as a mystic but as a serious thinker." (p. 85)'),
     SP(10),
     B('Not "ecstatic assertions" but "careful sequences of ideas and images."'),
     B('Not "abandonment to excess" but "thoughtful production of, and reaction to, extreme states of being."'),
@@ -381,7 +381,7 @@ slides.append({'title': 'Framework 2: The Kantian Sublime', 'blocks': [
 # 9
 slides.append({'title': 'The Origin of "Trying" (L10, 1846)', 'blocks': [
     P('At age fifteen, Dickinson tries to think her own death:'),
-    P('"I cannot imagine with the farthest stretch of my imagination my own death scene... I cannot realize that the grave will be my last home..."', italic=True),
+    P('"I cannot imagine with the farthest stretch of my imagination my own death scene... I cannot realize that the grave will be my last home..."'),
     SP(8),
     B('The refrain: "I cannot imagine ... I cannot realize ... nor can I realize ..."'),
     B('The mind "stretches, fails, realizes it fails, regroups, rewords, and reaches its limit again" (p. 88).'),
@@ -409,7 +409,7 @@ slides.append({'title': 'Defining the "Try-to-Think" Poem', 'blocks': [
 
 # 12
 slides.append({'title': 'Close Reading 1: Fr570 and the Dilemma', 'body_size': 15, 'blocks': [
-    P('"I tried to think a lonelier Thing / Than any I had seen - / Some Polar Expiation - An Omen in the Bone / Of Death\'s tremendous nearness - ... I plucked at our Partition - ... I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"', italic=True),
+    P('"I tried to think a lonelier Thing / Than any I had seen - / Some Polar Expiation - An Omen in the Bone / Of Death\'s tremendous nearness - ... I plucked at our Partition - ... I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"'),
     SP(6),
     P('The interpretive dilemma (p. 94):'),
     B('Proactive? - a "virtuoso attempt to conceptualize an extreme human possibility."'),
@@ -429,7 +429,7 @@ slides.append({'title': 'Close Reading 2: Tracking the Steps', 'blocks': [
 
 # 14
 slides.append({'title': 'Close Reading 3: The Paradoxical Close', 'blocks': [
-    P('"I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"', italic=True),
+    P('"I almost strove to clasp his Hand, / Such Luxury - it grew - / That as Myself - could pity Him - / Perhaps he - pitied me -"'),
     SP(8),
     B('Two God-forsaken souls in "Opposing Cells" - "a chilling scene reminiscent of Beckett\'s Godot."'),
     B('Deppman hears an elided phrase: "Such Luxury - it grew [- to think]."'),
