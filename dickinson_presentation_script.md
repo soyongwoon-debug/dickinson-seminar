@@ -3,7 +3,7 @@
 > Full spoken script for an 18-slide, ~25-minute graduate seminar presentation
 > on Jed Deppman, "Trying to Think with Emily Dickinson" (2005).
 > Stance: the thesis is self-undermining — his own reading proves thought and feeling are inseparable.
-> Delivery pace assumed: ~130 words/minute. Total ≈ 3,250 words ≈ 25 minutes.
+> Delivery pace assumed: ~130 words/minute. Spoken body ≈ 3,300 words ≈ 25 minutes (18 slides).
 
 ---
 
@@ -179,6 +179,12 @@ Let me leave us with four questions for discussion. First: does the thought/feel
 
 ---
 
+## Slide 18 — Closing: "I dwell in Possibility —"  (~0:40)
+
+I want to end where Dickinson herself might want us to end — not on a thesis, but on an opening. Her line: "I dwell in Possibility —." I've argued today that Deppman sets out to prove Dickinson a thinker rather than a feeler, and that his own reading quietly dissolves that very distinction — because in Dickinson, to think the unthinkable *is* to feel it. But notice what that dissolution actually gives us. It doesn't reduce her; it opens her. If her thinking is also feeling, if her poems are experiments we're invited to *try* rather than conclusions we're handed, then reading her is never finished — it's a space we dwell in, not a problem we solve. That, finally, is why she "dwells in Possibility." And it's why, more than a century later, we're still trying to think with Emily Dickinson. Thank you. I'd love to hear your questions.
+
+---
+
 ## Timing summary
 
 | Slide | Topic | Minutes |
@@ -200,7 +206,8 @@ Let me leave us with four questions for discussion. First: does the thought/feel
 | 15 | Strengths | 1:15 |
 | 16 | My position | 1:50 |
 | 17 | Conclusion | 1:15 |
-| **Total** | | **≈ 24:55** |
+| 18 | Closing (Possibility) | 0:40 |
+| **Total** | | **≈ 25:35** |
 
 **Padding tips if you run short:** read the full Fr570 poem aloud on Slide 12 (+45s); read the full L10 passage on Slide 9 (+30s); pause for a show of hands after each discussion question (+60s).
 
