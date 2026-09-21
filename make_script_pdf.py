@@ -152,14 +152,27 @@ w.gap(180)
 for ln in ['Trying to Think','with Emily Dickinson']:
     wln=tw(ln,30,True); w.s.append('BT /F2 30 Tf %.1f %.1f Td (%s) Tj ET'%((PAGE_W-wln)/2,w.y,esc(ln))); w.y-=38
 w.gap(10)
-for ln in ['25-Minute Presentation Script & Speaker Notes',
+for ln in ['25-Minute Presentation Script + Speaker Notes',
            'A reading of Jed Deppman (2005),',
            'The Emily Dickinson Journal 14.1: 84-103',
            '','So Yong-woon 202655100']:
     wln=tw(ln,14); w.s.append('%s rg BT /F1 14 Tf %.1f %.1f Td (%s) Tj ET 0 0 0 rg'%(GRAY,(PAGE_W-wln)/2,w.y,esc(ln))); w.y-=22
 w.newpage()
 
-def slide(num, title, target, script, notes):
+# Argument-flow summary page
+w.line('The Argument in One Breath',16,'/F2',gap=10,color=ACCENT)
+w.rule()
+w.line("Refute the mystic reading -> prove her obsession with thought via word-statistics -> theorize it through Kant's sublime and the postmodern -> confirm \"writing = thinking\" via the Higginson letters -> define the \"try-to-think\" poem -> demonstrate it through a close reading of Fr570 -> conclude that thought is both consolation AND risk.",12,'/F1',gap=6)
+w.gap(6)
+w.line("My through-line (the critique):",12,'/F2',gap=6,color=ACCENT)
+w.line("Deppman sets up thought VS feeling and picks thought -- but his own reading of Fr570 runs on affect. If the \"try\" matters only because the loneliness is unbearable, thought and feeling cannot be separated. So the essay's real achievement is the opposite of its stated one: thinking is an emotional act. The thesis is self-undermining -- and that is what makes it worth reading.",12,'/F1',gap=6)
+w.gap(6)
+w.line("Bookend: open with the Kierkegaard/Dickinson tension (Slide 3); close by returning to it (Slide 17) and to \"I dwell in Possibility\" (Slide 18).",12,'/F1',gap=6)
+w.gap(4)
+w.line("Note: Korean summaries are provided in the companion file (script_bilingual.md); PDF fonts cannot render Hangul.",10,'/F3',gap=5,color=GRAY)
+w.newpage()
+
+def slide(num, title, target, script, notes, kr=None):
     w.ensure(120)
     # slide header
     w.s.append('%s rg'%ACCENT)
@@ -167,6 +180,11 @@ def slide(num, title, target, script, notes):
     w.s.append('0 0 0 rg'); w.y-=22
     w.line(title,16,'/F2',gap=8)
     w.rule()
+    if kr:
+        w.line('CORE (KR)',11,'/F2',gap=6,color=GRAY)
+        for k in kr:
+            w.line('* '+k,11,'/F3',gap=5,indent=8)
+        w.gap(4)
     w.line('SCRIPT',11,'/F2',gap=6,color=ACCENT)
     for para in script:
         w.line(para,12,'/F1',gap=6); w.gap(4)
@@ -181,7 +199,8 @@ slide('1','Title','0:45',
  ["Good afternoon. Today I'm presenting Jed Deppman's 2005 essay, \"Trying to Think with Emily Dickinson,\" from The Emily Dickinson Journal. The title itself is the key: Deppman does not say \"thinking with Dickinson\" but *trying* to think. That word \"trying\" carries the whole argument. My aim is twofold: to reconstruct his argument fairly, and then to argue that it quietly undermines its own central claim -- and that this is exactly what makes it worth reading."],
  ["Open with energy; the hook is the word \"trying.\"",
   "Preview that you will both explain AND push back.",
-  "Don't rush -- set a calm pace for a 25-min talk."])
+  "Don't rush -- set a calm pace for a 25-min talk."],
+ kr=["Hook = the word \"trying\"; promise to explain AND critique."])
 
 slide('2','Contents','0:50',
  ["Here is our road map. We begin with two epigraphs that frame the central tension. Then the critical debate -- is Dickinson a mystic of feeling, or a serious thinker? From there: the thesis and its statistical evidence; the theoretical framework of postmodernism and the Kantian sublime; the origin of \"trying\" in the Higginson letters; the definition of the \"try-to-think\" poem; a close reading of \"I tried to think a lonelier Thing\"; and finally my critical assessment and conclusion. It all builds toward that one poem and one closing claim."],
@@ -193,7 +212,8 @@ slide('3','Two Epigraphs: The Central Tension','1:20',
   "Second, Kierkegaard: \"the more consciousness, the more intense the despair.\" This is the darker side -- greater consciousness can mean greater suffering. So before the argument even begins, a tension is planted: thinking matters enormously, yet thinking hurts. Hold on to that -- we return to Kierkegaard at the very end."],
  ["Read both epigraphs aloud, slowly.",
   "Flag the Kierkegaard line -- it comes back in the conclusion (bookend).",
-  "This tension is the seed of your later critique (thought vs. feeling)."])
+  "This tension is the seed of your later critique (thought vs. feeling)."],
+ kr=["Two epigraphs = the paper's double claim: (1) thinking is central (Dickinson); (2) yet it is bound up with suffering (Kierkegaard)."])
 
 slide('4','The Critical Debate','1:30',
  ["Why make this argument at all? Because Deppman pushes against an established reading. The traditional view treats Dickinson as a poet of feeling -- of ecstasy and physical sensation. Its sharpest form comes from Margaret Peterson, quoted here: her impassioned poems become \"a series of ecstatic assertions, an abandonment to excess verging on mental unbalance.\" Essentially: at her most intense, Dickinson stops thinking and simply erupts.",
@@ -207,7 +227,8 @@ slide('5',"Deppman's Thesis",'1:20',
   "So the claim is strong: the movement of thinking itself is the real subject of her poems. His stated goal -- and I'd underline this -- is to show \"how writing poetry helped her think.\" Keep one question alive as we go: can thought and feeling actually be separated? I don't think they can -- and I don't think his own evidence lets him."],
  ["This is THE thesis sentence -- read it verbatim.",
   "Plant your counter-question here (thought/feeling inseparable).",
-  "Color: the thesis quote is Deppman (blue)."])
+  "Color: the thesis quote is Deppman (blue)."],
+ kr=["Thesis: \"not a mystic but a serious thinker.\" The movement of thinking IS the subject. Plant the counter-question: can thought and feeling really be split?"])
 
 slide('6','The Statistical Evidence','1:30',
  ["Deppman's first move is admirably concrete: he counts. Using the Rosenbaum Concordance, on the feeling side -- feel 39, felt 35, feels 16, feeling 8; body only 10. On the thinking side, far larger -- thought 69, think 43, and \"know\" 230 times. \"Know\" is effectively the fourth most common verb in her whole corpus. \"Mind\" 79, \"brain\" 26.",
@@ -284,7 +305,8 @@ slide('16','Critical Assessment: My Position','1:50',
  ["This is the climax -- commit fully to the stance.",
   "The affect words are Deppman's own (blue) -- that's the proof.",
   "Deliver 'thinking is an emotional act' slowly; it's your core sentence.",
-  "Invite disagreement openly."])
+  "Invite disagreement openly."],
+ kr=["CLIMAX. The thesis is self-undermining: Deppman's own affect-words (chilling, sickening loneliness) prove thought and feeling are inseparable. Real achievement = opposite of stated one: thinking is an emotional act."])
 
 slide('17','Conclusion & Discussion Questions','1:15',
  ["Let me draw it together. Deppman ends honestly: we never know whether Dickinson succeeded in thinking what she tried to think. What we know is that these are poems in which she \"tried to help or save herself by representing her own efforts to help or save herself.\" To read them is to risk \"experiencing a loneliness we cannot sound.\"",
