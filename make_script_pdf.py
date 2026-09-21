@@ -140,8 +140,8 @@ class Writer:
         if self.s: self.pdf.page('\n'.join(self.s))
 
 
-ACCENT='0.13 0.30 0.52'
-GRAY='0.35 0.35 0.35'
+ACCENT='0 0 0'
+GRAY='0 0 0'
 
 
 # ---- content ----
